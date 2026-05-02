@@ -114,6 +114,3 @@ JWT_SECRET_KEY=...
 GEMINI_API_KEY=...
 ```
 
-## 📜 License
-
-MIT
