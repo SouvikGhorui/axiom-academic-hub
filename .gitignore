@@ -1,13 +1,27 @@
 # Python
 backend/venv/
 backend/__pycache__/
+backend/routers/__pycache__/
 backend/*.pyc
+backend/**/*.pyc
+
+# Secrets & credentials — NEVER commit these
 backend/.env
+backend/token.json
+backend/credentials.json
+
+# Database file (local only)
+backend/academic_hub.db
+
+# Test / scratch scripts
+backend/test_classroom.py
 
 # Node
 frontend/node_modules/
 frontend/.next/
 frontend/.env
+frontend/.env.local
 
 # OS
 .DS_Store
+Thumbs.db

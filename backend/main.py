@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from routers import auth, courses, tasks
 
 app = FastAPI(
     title="Automated Academic Hub API",
@@ -14,13 +15,11 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-from routers import auth, courses, tasks
 
 app.include_router(auth.router)
 app.include_router(courses.router)

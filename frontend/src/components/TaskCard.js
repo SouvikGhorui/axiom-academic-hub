@@ -1,9 +1,34 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './TaskCard.css';
 
 export default function TaskCard({ task, index }) {
   const [isStudying, setIsStudying] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  useEffect(() => {
+    let interval = null;
+    if (isStudying) {
+      interval = setInterval(() => {
+        setElapsedTime(prev => prev + 1);
+      }, 1000);
+    } else if (!isStudying && elapsedTime !== 0) {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isStudying, elapsedTime]);
+
+  const formatTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const toggleStudying = () => {
+    setIsStudying(!isStudying);
+  };
 
   // Determine priority color based on score
   let priorityClass = 'priority-low';
@@ -35,10 +60,9 @@ export default function TaskCard({ task, index }) {
       <div className="task-actions">
         <button 
           className={isStudying ? "btn-active" : "btn-primary"}
-          onClick={() => setIsStudying(true)}
-          disabled={isStudying}
+          onClick={toggleStudying}
         >
-          {isStudying ? "In Progress..." : "Start Studying"}
+          {isStudying ? `Stop Studying (${formatTime(elapsedTime)})` : (elapsedTime > 0 ? `Resume (${formatTime(elapsedTime)})` : "Start Studying")}
         </button>
       </div>
     </div>

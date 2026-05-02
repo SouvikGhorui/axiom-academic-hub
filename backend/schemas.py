@@ -16,7 +16,7 @@ class CourseCreate(CourseBase):
 
 class CourseResponse(CourseBase):
     id: UUID
-    user_id: UUID
+    user_id: Optional[UUID] = None
     
     model_config = ConfigDict(from_attributes=True)
 

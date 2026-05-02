@@ -1,57 +1,71 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import TaskCard from '../components/TaskCard';
 import ConflictModal from '../components/ConflictModal';
 
+const API = 'http://localhost:8000';
+
 export default function Dashboard() {
   const [tasks, setTasks] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [activeConflict, setActiveConflict] = useState(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data for display purposes
-  useEffect(() => {
-    // Simulate fetching tasks
-    setTasks([
-      {
-        id: 1,
-        title: "Calculus III Midterm",
-        course: "MATH 301",
-        priority_score: 85.5,
-        effort_estimate_hrs: 10,
-        due_date: new Date(Date.now() + 86400000 * 2).toISOString(), // 2 days from now
-      },
-      {
-        id: 2,
-        title: "Data Structures Final Project",
-        course: "CS 202",
-        priority_score: 75.0,
-        effort_estimate_hrs: 15,
-        due_date: new Date(Date.now() + 86400000 * 5).toISOString(),
-      },
-      {
-        id: 3,
-        title: "Read Chapter 4: Thermodynamics",
-        course: "PHYS 101",
-        priority_score: 35.2,
-        effort_estimate_hrs: 2,
-        due_date: new Date(Date.now() + 86400000 * 7).toISOString(),
-      }
-    ]);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [coursesRes, tasksRes] = await Promise.all([
+        fetch(`${API}/courses`),
+        fetch(`${API}/tasks`),
+      ]);
+      const coursesData = await coursesRes.json();
+      const tasksData = await tasksRes.json();
 
-    // Simulate a conflict event popping up after 3 seconds
-    setTimeout(() => {
-      setActiveConflict({
-        academic_task: "Study for Calculus III Midterm",
-        calendar_event: "Coffee with Alex",
-        start_time: "Tomorrow 2:00 PM",
-        end_time: "Tomorrow 4:00 PM",
-        priority_score: 85.5
-      });
-    }, 3000);
+      if (Array.isArray(coursesData)) setCourses(coursesData);
+      if (Array.isArray(tasksData)) setTasks(tasksData);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleSyncClassroom = async () => {
+    setSyncing(true);
+    setSyncMsg(null);
+    try {
+      const res = await fetch(`${API}/courses/sync-classroom`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setSyncMsg(`✅ Synced! Added ${data.added.length} new, updated ${data.updated.length} existing course(s).`);
+        await fetchData(); // Refresh course list
+      } else {
+        setSyncMsg(`❌ Sync failed: ${data.detail || 'Unknown error'}`);
+      }
+    } catch (err) {
+      setSyncMsg(`❌ Could not reach backend: ${err.message}`);
+    } finally {
+      setSyncing(false);
+      setTimeout(() => setSyncMsg(null), 6000);
+    }
+  };
+
   const handleResolveConflict = (decision) => {
-    console.log("User decision:", decision);
+    console.log('User decision:', decision);
     setActiveConflict(null);
+  };
+
+  const priorityColor = (score) => {
+    if (!score) return 'var(--priority-low)';
+    if (score >= 75) return 'var(--priority-high)';
+    if (score >= 40) return 'var(--priority-med)';
+    return 'var(--priority-low)';
   };
 
   return (
@@ -61,39 +75,140 @@ export default function Dashboard() {
           <h1>Axiom</h1>
           <p>Your prioritized study schedule, automatically generated.</p>
         </div>
-        <button className="btn-outline" onClick={() => alert('Google OAuth flow initiated.')}>
-          Connect Google Apps
-        </button>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <button
+            className={syncing ? 'btn-active' : 'btn-primary'}
+            onClick={handleSyncClassroom}
+            disabled={syncing}
+            id="sync-classroom-btn"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            {syncing ? (
+              <>
+                <span className="spinner" />
+                Syncing…
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="1 4 1 10 7 10"/>
+                  <path d="M3.51 15a9 9 0 1 0 .49-4.5"/>
+                </svg>
+                Sync Google Classroom
+              </>
+            )}
+          </button>
+          <button className="btn-outline" onClick={() => window.open(`${API}/auth/login`, '_blank')} id="connect-google-btn">
+            Connect Google
+          </button>
+        </div>
       </header>
 
+      {syncMsg && (
+        <div className="sync-banner" style={{ gridColumn: '1 / -1' }}>
+          {syncMsg}
+        </div>
+      )}
+
       <div className="main-content">
-        <h2>🔥 Up Next for You</h2>
+        <h2>📚 Enrolled Classes</h2>
+        {loading ? (
+          <div className="skeleton-row">
+            {[1, 2, 3].map(i => <div key={i} className="skeleton-card" />)}
+          </div>
+        ) : courses.length === 0 ? (
+          <div className="empty-state glass-panel">
+            <span style={{ fontSize: '2rem' }}>🎓</span>
+            <p>No classes yet. Click <strong>Sync Google Classroom</strong> to import your courses.</p>
+          </div>
+        ) : (
+          <div className="course-grid">
+            {courses.map((course) => (
+              <div
+                key={course.id}
+                className="glass-panel course-card"
+                id={`course-${course.id}`}
+              >
+                <div className="course-card-accent" />
+                <div className="course-card-body">
+                  <h3 className="course-name">{course.name}</h3>
+                  {course.description && (
+                    <p className="course-desc">{course.description}</p>
+                  )}
+                  {course.external_id && (
+                    <span className="course-badge">Classroom ID: {course.external_id}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <h2 style={{ marginTop: '2.5rem' }}>🔥 Up Next For You</h2>
         <div className="task-list">
-          {tasks.map((task, idx) => (
-            <TaskCard key={task.id} task={task} index={idx} />
-          ))}
+          {tasks.length === 0 && !loading ? (
+            <div className="empty-state glass-panel">
+              <span style={{ fontSize: '2rem' }}>✅</span>
+              <p>No tasks yet. Tasks will appear here once courses are synced and assignments are found.</p>
+            </div>
+          ) : (
+            tasks.map((task, idx) => (
+              <TaskCard key={task.id} task={task} index={idx} />
+            ))
+          )}
         </div>
       </div>
 
       <aside className="sidebar">
-        <div className="glass-panel" style={{ padding: '1.5rem' }}>
-          <h2>Today's Stats</h2>
-          <div style={{ marginTop: '1rem' }}>
-            <p style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span>Tasks Completed:</span>
-              <span style={{ color: 'white', fontWeight: 'bold' }}>2</span>
-            </p>
-            <p style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Hours Studied:</span>
-              <span style={{ color: 'white', fontWeight: 'bold' }}>3.5 hrs</span>
-            </p>
+        <div className="glass-panel stats-panel">
+          <h2>📊 Today's Stats</h2>
+          <div className="stats-grid">
+            <div className="stat-item">
+              <span className="stat-value">{courses.length}</span>
+              <span className="stat-label">Courses</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-value">{tasks.length}</span>
+              <span className="stat-label">Tasks</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-value">
+                {tasks.filter(t => t.status === 'COMPLETED').length}
+              </span>
+              <span className="stat-label">Done</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-value" style={{ color: 'var(--priority-high)' }}>
+                {tasks.filter(t => (t.priority_score || 0) >= 75).length}
+              </span>
+              <span className="stat-label">High Priority</span>
+            </div>
           </div>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '1.5rem', marginTop: '1rem' }}>
+          <h2 style={{ marginBottom: '1rem' }}>🚀 Quick Actions</h2>
+          <button
+            className="btn-primary"
+            style={{ width: '100%', marginBottom: '0.75rem' }}
+            onClick={handleSyncClassroom}
+            disabled={syncing}
+          >
+            Sync Classroom Now
+          </button>
+          <button
+            className="btn-outline"
+            style={{ width: '100%' }}
+            onClick={fetchData}
+          >
+            Refresh Data
+          </button>
         </div>
       </aside>
 
-      <ConflictModal 
-        conflict={activeConflict} 
-        onResolve={handleResolveConflict} 
+      <ConflictModal
+        conflict={activeConflict}
+        onResolve={handleResolveConflict}
       />
     </main>
   );

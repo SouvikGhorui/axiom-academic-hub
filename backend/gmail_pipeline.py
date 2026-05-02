@@ -2,11 +2,15 @@ import os
 import base64
 import json
 import google.generativeai as genai
+from dotenv import load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+
+# Load environment variables from .env
+load_dotenv()
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
@@ -60,8 +64,8 @@ def fetch_course_emails(creds: Credentials, max_results: int = 10) -> list:
         # Build the Gmail API service
         service = build('gmail', 'v1', credentials=creds)
         
-        # Query tailored for academic emails
-        query = 'subject:syllabus OR "Welcome to" OR "enrolled in" OR "course registration"'
+        # Query tailored for academic emails, including Google Classroom invites
+        query = 'subject:syllabus OR "enrolled" OR "registration" OR "Classroom" OR "joined the class"'
         
         print(f"Searching Gmail for query: [{query}]")
         results = service.users().messages().list(userId='me', q=query, maxResults=max_results).execute()
@@ -75,6 +79,11 @@ def fetch_course_emails(creds: Credentials, max_results: int = 10) -> list:
         for msg in messages:
             msg_id = msg['id']
             msg_data = service.users().messages().get(userId='me', id=msg_id, format='full').execute()
+            
+            # Print the snippet to debug what email was actually fetched
+            snippet = msg_data.get('snippet', 'No snippet available')
+            safe_snippet = snippet.encode('ascii', 'ignore').decode('ascii')
+            print(f"--- Found Email Snippet: {safe_snippet[:100]}... ---")
             
             # Extract plaintext body
             payload = msg_data.get('payload', {})
@@ -158,7 +167,7 @@ if __name__ == '__main__':
         print("Successfully authenticated with Google.")
         
         # 2. Fetch Emails
-        emails = fetch_course_emails(credentials, max_results=3)
+        emails = fetch_course_emails(credentials, max_results=50)
         print(f"Fetched {len(emails)} relevant emails.")
         
         # 3. Extract Courses
@@ -171,6 +180,31 @@ if __name__ == '__main__':
                 
         print("\n--- Final Extracted Courses ---")
         print(json.dumps(all_extracted_courses, indent=2))
+        
+        # 4. Save to Database
+        if all_extracted_courses:
+            import asyncio
+            from database import AsyncSessionLocal
+            from models import Course
+
+            async def save_courses_to_db(courses_data):
+                async with AsyncSessionLocal() as session:
+                    for c_data in courses_data:
+                        # Ensure we don't save duplicates (basic check based on name)
+                        from sqlalchemy import select
+                        result = await session.execute(select(Course).where(Course.name == c_data.get("course_name")))
+                        existing_course = result.scalars().first()
+                        if not existing_course:
+                            new_course = Course(
+                                external_id=c_data.get("course_code", ""),
+                                name=c_data.get("course_name", "Unknown Course"),
+                                description=f"Imported from Gmail: {c_data.get('course_code', '')}"
+                            )
+                            session.add(new_course)
+                    await session.commit()
+            
+            asyncio.run(save_courses_to_db(all_extracted_courses))
+            print("Successfully saved extracted courses to the database!")
         
     except Exception as e:
         print(f"Pipeline failed: {e}")
