@@ -1,0 +1,88 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 600px;
+  padding: 2rem;
+  background: var(--bg-color); /* solid background fallback */
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.modal-content h2 {
+  color: #f59e0b;
+  margin-bottom: 1rem;
+}
+
+.conflict-details {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+@media (max-width: 600px) {
+  .conflict-details {
+    flex-direction: column;
+  }
+}
+
+.conflict-card {
+  flex: 1;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.conflict-card.academic {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+}
+
+.conflict-card h4 {
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--surface-color);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.impact {
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.vs {
+  font-weight: 800;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
