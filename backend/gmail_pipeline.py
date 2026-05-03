@@ -12,48 +12,7 @@ from googleapiclient.errors import HttpError
 # Load environment variables from .env
 load_dotenv()
 
-# If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-
-# Ensure GEMINI_API_KEY is set in the environment for LLM extraction
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-def authenticate_gmail() -> Credentials:
-    """
-    Handles OAuth 2.0 authentication for Gmail API.
-    Reads from 'credentials.json' (downloaded from GCP Console) 
-    and saves the user's session in 'token.json'.
-    """
-    creds = None
-    # The file token.json stores the user's access and refresh tokens.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-        
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            try:
-                creds.refresh(Request())
-            except Exception as e:
-                print(f"Error refreshing token: {e}. Re-authenticating...")
-                creds = None
-
-        if not creds:
-            if not os.path.exists('credentials.json'):
-                raise FileNotFoundError(
-                    "Missing 'credentials.json'. Please download your OAuth 2.0 Client ID "
-                    "JSON from the Google Cloud Console and place it in this directory."
-                )
-            
-            # Spin up a local server to handle the OAuth callback
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-            
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-            
-    return creds
+from google_utils import build_credentials, SCOPES
 
 def fetch_course_emails(creds: Credentials, max_results: int = 10) -> list:
     """

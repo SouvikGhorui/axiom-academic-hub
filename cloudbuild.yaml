@@ -1,0 +1,75 @@
+steps:
+  # 1. Build and push the backend image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-backend'
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/backend:${_TAG}', './backend']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-backend'
+    args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/backend:${_TAG}']
+
+  # 2. Deploy backend to Cloud Run to get its URL
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-backend'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'backend'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/backend:${_TAG}'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-secrets'
+      - 'DATABASE_URL=DATABASE_URL:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest,JWT_SECRET_KEY=JWT_SECRET_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,FRONTEND_URL=FRONTEND_URL:latest,GOOGLE_REDIRECT_URI=GOOGLE_REDIRECT_URI:latest'
+      - '--add-cloudsql-instances'
+      - '${PROJECT_ID}:${_REGION}:axiom-db'
+
+  # 3. Build and push the frontend image, passing the backend URL as a build arg
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'build-frontend'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Install Docker in the cloud-sdk container
+        apt-get update && apt-get install -y docker.io
+        
+        BACKEND_URL=$(gcloud run services describe backend --region ${_REGION} --format 'value(status.url)')
+        echo "Building frontend with BACKEND_URL: $$BACKEND_URL"
+        
+        docker build -t ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/frontend:${_TAG} \
+          --build-arg NEXT_PUBLIC_API_URL=$$BACKEND_URL ./frontend
+    waitFor: ['deploy-backend']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-frontend'
+    args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/frontend:${_TAG}']
+
+  # 4. Deploy frontend to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-frontend'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'axiom'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/frontend:${_TAG}'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
+substitutions:
+  _REGION: us-central1
+  _REPO: axiom-repo
+  _TAG: latest
+
+images:
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/backend:${_TAG}'
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/frontend:${_TAG}'

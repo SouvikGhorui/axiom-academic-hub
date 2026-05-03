@@ -137,3 +137,38 @@ JWT_SECRET_KEY=...
 GEMINI_API_KEY=...
 ```
 
+## ☁️ Google Cloud Deployment
+
+This project is fully optimized for **Google Cloud Run** with a seamless CI/CD pipeline.
+
+### 1. Initial Setup
+Run the provided provisioning script to set up all GCP resources (APIs, Database, Registry, and Secrets):
+
+```powershell
+# Windows
+powershell.exe -ExecutionPolicy Bypass -File setup_gcp.ps1
+```
+
+### 2. Configure Secrets
+Populate your sensitive keys in **Secret Manager**:
+- `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET` (from Cloud Console)
+- `GEMINI_API_KEY` (from Google AI Studio)
+- `DATABASE_URL`: `postgresql+asyncpg://postgres:postgres@/academic_hub?host=/cloudsql/[PROJECT_ID]:[REGION]:axiom-db`
+
+### 3. Deploy to Live
+Trigger the automated build and deployment process:
+
+```bash
+gcloud builds submit --config cloudbuild.yaml
+```
+
+### 4. Post-Deployment (Final Step)
+After deployment, update your **Google OAuth Credentials** with the production URLs:
+- **Authorized Redirect URI:** `https://backend-163187619200.us-central1.run.app/auth/callback`
+- **Authorized JavaScript Origin:** `https://axiom-163187619200.us-central1.run.app`
+
+---
+
+## 🔗 Live URLs
+- **Frontend Dashboard:** [https://axiom-163187619200.us-central1.run.app](https://axiom-163187619200.us-central1.run.app)
+- **Backend API:** [https://backend-163187619200.us-central1.run.app](https://backend-163187619200.us-central1.run.app)

@@ -20,19 +20,12 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "fallback-secret-for-dev")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week
 
+from google_utils import SCOPES
+
 @router.get("/login")
 async def login():
     # Define scopes needed for Classroom, Calendar, and Gmail
-    scopes = [
-        "openid",
-        "email",
-        "profile",
-        "https://www.googleapis.com/auth/classroom.courses.readonly",
-        "https://www.googleapis.com/auth/classroom.coursework.me",
-        "https://www.googleapis.com/auth/calendar",
-        "https://www.googleapis.com/auth/gmail.readonly"
-    ]
-    scope_str = " ".join(scopes)
+    scope_str = " ".join(SCOPES)
     auth_url = (
         f"https://accounts.google.com/o/oauth2/v2/auth?"
         f"client_id={GOOGLE_CLIENT_ID}&"
@@ -125,7 +118,7 @@ async def callback(code: str, db: AsyncSession = Depends(get_db)):
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=ALGORITHM)
     
     # Redirect to the frontend with the token and user name
-    frontend_url = "http://localhost:3000"
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
     safe_name = quote(user.name or "Student")
     redirect_url = f"{frontend_url}/?token={encoded_jwt}&name={safe_name}"
     print(f"Redirecting back to frontend: {redirect_url}")

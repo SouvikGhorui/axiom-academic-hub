@@ -5,7 +5,7 @@ from typing import List
 from uuid import UUID
 
 from database import get_db
-from models import Course, User
+from models import Course, User, OAuthToken
 from schemas import CourseCreate, CourseResponse
 import classroom as classroom_api
 from dependencies import get_current_user
@@ -41,13 +41,20 @@ async def sync_classroom_courses(
     Fetches all active courses from Google Classroom and upserts them
     into the local database. Returns a summary of what was added/updated.
     """
-    # In a full implementation, we would extract the refresh token from current_user.oauth_tokens
-    # and pass it to a customized classroom_api.fetch_classroom_courses that accepts credentials.
-    # For now, we reuse the existing file-based approach from the current codebase.
+    # Retrieve Google OAuth token from database
+    result = await db.execute(
+        select(OAuthToken)
+        .where(OAuthToken.user_id == current_user.id)
+        .where(OAuthToken.scope_key == "google_all")
+    )
+    token_record = result.scalars().first()
+    
+    if not token_record:
+        raise HTTPException(status_code=401, detail="Google account not linked or session expired")
+
     try:
-        gc_courses = await classroom_api.fetch_classroom_courses()
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        creds = classroom_api.build_credentials(token_record.encrypted_refresh_token)
+        gc_courses = await classroom_api.fetch_classroom_courses(creds)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Google Classroom API error: {e}")
 
