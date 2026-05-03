@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import os
 from fastapi.middleware.cors import CORSMiddleware
 from routers import auth, courses, tasks, webhooks
 
@@ -9,13 +10,16 @@ app = FastAPI(
 )
 
 # Allow frontend to access the API
-origins = [
+allowed_origins = [
     "http://localhost:3000",
+    os.getenv("FRONTEND_URL", ""),
 ]
+# Remove empty strings
+allowed_origins = [o for o in allowed_origins if o]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import TaskCard from '../components/TaskCard';
 import ConflictModal from '../components/ConflictModal';
 
-const API = 'http://localhost:8000';
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // ── Dummy data for Guest Mode ───────────────────────────────────
 const GUEST_COURSES = [
