@@ -84,10 +84,22 @@ docker-compose up --build
 ### Google OAuth Setup
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create OAuth 2.0 credentials (Desktop app type)
-3. Download `credentials.json` and place it in the `backend/` folder
-4. Enable: Gmail API, Google Classroom API, Google Calendar API
-5. On first run, a browser window will open for authentication
+2. Create OAuth 2.0 credentials:
+   - Select **Web application** as the application type.
+   - Add `http://localhost:8000/auth/callback` to the **Authorized redirect URIs**.
+   - Note your **Client ID** and **Client Secret**.
+3. Configure your `backend/.env` file:
+   - Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` with the values from step 2.
+4. Enable the following APIs:
+   - Gmail API
+   - Google Classroom API
+   - Google Calendar API
+5. **Important for Public Access:**
+   - Go to the **OAuth consent screen** tab.
+   - Click **PUBLISH APP** to move it from "Testing" to "In Production".
+   - Without this, only the "Test users" you explicitly add will be able to log in.
+
+*Note: Since the app uses sensitive scopes (Gmail, Calendar), users will see a "This app isn't verified" warning until you complete the Google verification process. You can still proceed by clicking "Advanced" -> "Go to Axiom (unsafe)".*
 
 ## 📁 Project Structure
 
