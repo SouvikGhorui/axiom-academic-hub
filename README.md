@@ -62,6 +62,25 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## 🐳 Running with Docker
+
+The easiest way to run both the frontend and backend is using Docker Compose.
+
+### 1. Configure Environment
+Ensure you have your `.env` file in the `backend/` directory with all the required keys (see [Environment Variables](#-environment-variables)).
+
+### 2. Launch with Docker Compose
+From the root directory, run:
+```bash
+docker-compose up --build
+```
+
+- **Frontend:** [http://localhost:3000](http://localhost:3000)
+- **Backend API:** [http://localhost:8000](http://localhost:8000)
+- **Interactive Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+
+*Note: On the first run, the system will attempt to initiate the Google OAuth flow. Check the terminal logs if a browser window does not automatically open.*
+
 ### Google OAuth Setup
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
@@ -74,7 +93,10 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ```
 Task manager app/
+├── docker-compose.yml       # Docker orchestration
 ├── backend/
+│   ├── Dockerfile           # Backend container config
+│   ├── requirements.txt     # Python dependencies
 │   ├── main.py              # FastAPI app entry point
 │   ├── models.py            # SQLAlchemy ORM models
 │   ├── schemas.py           # Pydantic schemas
@@ -91,6 +113,7 @@ Task manager app/
 │       ├── courses.py       # Course CRUD + Classroom sync
 │       └── tasks.py         # Task CRUD
 └── frontend/
+    ├── Dockerfile           # Frontend container config
     └── src/
         ├── app/
         │   ├── page.js      # Main dashboard
