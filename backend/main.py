@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth, courses, tasks
+from routers import auth, courses, tasks, webhooks
 
 app = FastAPI(
     title="Automated Academic Hub API",
@@ -24,6 +24,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(courses.router)
 app.include_router(tasks.router)
+app.include_router(webhooks.router)
 
 @app.get("/")
 async def root():

@@ -1,42 +1,41 @@
 from datetime import datetime
+import math
 
-def calculate_priority_score(due_date: datetime, task_type: str, effort_hrs: float, current_time: datetime = None) -> float:
-    """
-    Calculates the priority score based on Urgency, Impact, and Effort factors.
-    Score = (Urgency * 0.5) + (Impact * 0.3) + (Effort * 0.2)
-    """
-    if current_time is None:
-        current_time = datetime.utcnow()
-    
-    # 1. Urgency Factor
-    if due_date:
-        days_left = max(0, (due_date - current_time).total_seconds() / 86400)
-        if days_left == 0:
-            urgency = 100.0
-        else:
-            urgency = min(100.0, 100.0 / (days_left ** 1.5))
+IMPACT_DEFAULTS = {
+    "EXAM": 85.0, 
+    "PROJECT": 70.0, 
+    "HOMEWORK": 45.0, 
+    "READING": 20.0
+}
+
+def calculate_urgency(due_date: datetime, now: datetime) -> float:
+    if due_date is None:
+        return 10.0
+    delta_days = max(0.01, (due_date - now).total_seconds() / 86400)
+    return min(100.0, 100.0 / (delta_days ** 1.5))
+
+def calculate_impact(task_type: str, weight_pct: float | None) -> float:
+    if weight_pct is not None and 0 < weight_pct <= 100:
+        return float(weight_pct)
+    return IMPACT_DEFAULTS.get(task_type, 30.0)
+
+def calculate_effort_pressure(effort_hrs: float, due_date: datetime, now: datetime) -> float:
+    if due_date is None:
+        delta_days = 7.0
     else:
-        urgency = 10.0 # Low default if no due date
-        
-    # 2. Impact Factor
-    impact_map = {
-        "EXAM": 100.0,
-        "PROJECT": 80.0,
-        "HOMEWORK": 50.0,
-        "READING": 20.0
-    }
-    impact = impact_map.get(task_type, 30.0)
-    
-    # 3. Effort Factor
-    if due_date:
-        days_left = max(0.5, (due_date - current_time).total_seconds() / 86400)
-    else:
-        days_left = 7.0
-    burn_rate = effort_hrs / days_left
-    effort_factor = min(100.0, burn_rate * 20.0)
-    
-    # Weights
-    W1, W2, W3 = 0.5, 0.3, 0.2
-    
-    score = (urgency * W1) + (impact * W2) + (effort_factor * W3)
-    return score
+        delta_days = max(0.1, (due_date - now).total_seconds() / 86400)
+    burn_rate = (effort_hrs or 1.0) / delta_days
+    return min(100.0, burn_rate * 20.0)
+
+def calculate_priority_score(
+    due_date: datetime,
+    task_type: str,
+    effort_hrs: float,
+    weight_pct: float | None = None,
+    now: datetime | None = None,
+) -> float:
+    now = now or datetime.utcnow()
+    U = calculate_urgency(due_date, now)
+    I = calculate_impact(task_type, weight_pct)
+    E = calculate_effort_pressure(effort_hrs, due_date, now)
+    return round((U * 0.50) + (I * 0.30) + (E * 0.20), 2)
