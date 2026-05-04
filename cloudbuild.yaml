@@ -27,6 +27,14 @@ steps:
       - 'DATABASE_URL=DATABASE_URL:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest,JWT_SECRET_KEY=JWT_SECRET_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,FRONTEND_URL=FRONTEND_URL:latest,GOOGLE_REDIRECT_URI=GOOGLE_REDIRECT_URI:latest'
       - '--add-cloudsql-instances'
       - '${PROJECT_ID}:${_REGION}:axiom-db'
+      - '--min-instances'
+      - '0'
+      - '--startup-cpu-boost'
+      - '--cpu-throttling'
+      - '--memory'
+      - '1Gi'
+      - '--execution-environment'
+      - 'gen2'
 
   # 3. Build and push the frontend image, passing the backend URL as a build arg
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -64,6 +72,14 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
+      - '--min-instances'
+      - '0'
+      - '--startup-cpu-boost'
+      - '--cpu-throttling'
+      - '--memory'
+      - '1Gi'
+      - '--execution-environment'
+      - 'gen2'
 
 substitutions:
   _REGION: us-central1

@@ -179,6 +179,25 @@ After deployment, update your **Google OAuth Credentials** with the production U
 - **Authorized Redirect URI:** `https://backend-163187619200.us-central1.run.app/auth/callback`
 - **Authorized JavaScript Origin:** `https://axiom-163187619200.us-central1.run.app`
 
+### 5. Manage Scaling & Performance
+We've added scripts to easily toggle the application between **Live All The Time** (Always-on) and **Live When People** (On-demand) modes.
+
+**To switch to "Live When People" mode (Default):**
+- Scales to zero when no traffic (saves money).
+- Throttles CPU when idle.
+- **Fast Wake Up**: Kept `startup-cpu-boost` active so the app starts quickly when the first person visits.
+```powershell
+.\manage_scaling.ps1 -Mode "ECO"
+```
+
+**To switch to "Live All The Time" mode:**
+- Ensures 1+ instance is always running (no cold starts).
+- Enables **Always-on CPU** (no throttling).
+- Upgrades to **1Gi Memory** and **Gen2 Execution Environment**.
+```powershell
+.\manage_scaling.ps1 -Mode "LIVE"
+```
+
 ---
 
 ## 🔗 Live URLs
