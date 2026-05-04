@@ -17,7 +17,7 @@ An AI-powered academic task manager that automatically syncs your **Google Class
 |---|---|
 | Frontend | Next.js 16, React 19, Vanilla CSS |
 | Backend | FastAPI, Python 3.13 |
-| Database | SQLite (via SQLAlchemy async + aiosqlite) |
+| Database | SQLite (Local), PostgreSQL (Production) |
 | AI | Google Gemini API |
 | Auth | Google OAuth 2.0 + JWT |
 | APIs | Gmail API, Google Classroom API, Google Calendar API |
@@ -104,7 +104,7 @@ docker-compose up --build
 ## 📁 Project Structure
 
 ```
-Task manager app/
+Axiom-Academic-Hub/
 ├── docker-compose.yml       # Docker orchestration
 ├── backend/
 │   ├── Dockerfile           # Backend container config
