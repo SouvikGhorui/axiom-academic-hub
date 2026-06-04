@@ -73,3 +73,28 @@
   display: flex;
   justify-content: flex-end;
 }
+
+@media (max-width: 600px) {
+  .task-card {
+    padding: 1.2rem;
+  }
+
+  .task-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .task-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .task-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .task-actions button {
+    width: 100%;
+  }
+}
