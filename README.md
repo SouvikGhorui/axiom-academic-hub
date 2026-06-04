@@ -1,6 +1,6 @@
 # Axiom – Automated Academic Hub 🎓
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/Axiom-Academic-Hub)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/SouvikGhorui/axiom-academic-hub)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Next.js](https://img.shields.io/badge/Frontend-Next.js-000000?logo=next.js)](https://nextjs.org/)
@@ -35,7 +35,7 @@ Axiom is an AI-powered academic orchestration platform designed to streamline st
 Axiom follows a modular, professional-grade directory structure designed for scalability and maintainability.
 
 ```text
-Axiom-Academic-Hub/
+axiom-academic-hub/
 ├── backend/
 │   ├── app/                 # FastAPI core application
 │   │   ├── api/             # RESTful API endpoints (auth, tasks, courses)
@@ -82,8 +82,8 @@ Axiom-Academic-Hub/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/Axiom-Academic-Hub.git
-   cd Axiom-Academic-Hub
+   git clone https://github.com/SouvikGhorui/axiom-academic-hub.git
+   cd axiom-academic-hub
    ```
 
 2. **Backend Configuration**
@@ -165,4 +165,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-Developed with ⚡ by [Souvik](https://github.com/yourusername)
+Developed with ⚡ by [Souvik](https://github.com/SouvikGhorui)

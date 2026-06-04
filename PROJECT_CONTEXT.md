@@ -4,7 +4,7 @@ This document provides a comprehensive overview of the **Axiom** project, includ
 
 ## 📁 Project Structure
 ```
-Axiom-Academic-Hub/
+axiom-academic-hub/
 ├── backend/
 │   ├── app/                 # FastAPI application package
 │   │   ├── main.py          # App entry point
