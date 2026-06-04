@@ -20,7 +20,7 @@ celery_app.conf.update(
 
 celery_app.conf.beat_schedule = {
     "sync-all-users-every-15min": {
-        "task": "worker.sync_all_users",
+        "task": "app.worker.sync_all_users",
         "schedule": crontab(minute="*/15"),
     },
 }
@@ -50,8 +50,8 @@ def sync_user_gmail(user_id: str, history_id: str = None):
 @celery_app.task
 def recalculate_priorities(user_id: str):
     import asyncio
-    from database import AsyncSessionLocal
-    from sync import run_priority_recalc
+    from app.db.database import AsyncSessionLocal
+    from app.services.sync import run_priority_recalc
     
     async def async_recalc():
         async with AsyncSessionLocal() as session:

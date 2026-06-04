@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 import os
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth, courses, tasks, webhooks
-from database import engine, Base
-import models # Import models to ensure they are registered with Base
+from app.api import auth, courses, tasks, webhooks
+from app.db.database import engine, Base
+from app.db import models # Import models to ensure they are registered with Base
 
 app = FastAPI(
     title="Automated Academic Hub API",
@@ -40,8 +40,8 @@ app.include_router(webhooks.router)
 
 @app.on_event("startup")
 async def on_startup():
-    from database import engine, Base
-    import models
+    from app.db.database import engine, Base
+    from app.db import models
     async with engine.begin() as conn:
         # This will create tables if they don't exist, without dropping existing data
         await conn.run_sync(Base.metadata.create_all)

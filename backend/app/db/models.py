@@ -7,7 +7,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 import enum
-from database import Base
+from app.db.database import Base
 
 # ── Enums ─────────────────────────────────────────────────────────────────────
 

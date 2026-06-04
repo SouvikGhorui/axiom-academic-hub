@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from models import Task, TaskStatus, Course, SyncState
+from app.db.models import Task, TaskStatus, Course, SyncState
 
 def compute_task_hash(external_data: dict) -> str:
     """Deterministic hash of the fields that matter for priority/calendar."""

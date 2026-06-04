@@ -8,8 +8,8 @@ import requests
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 
-from database import get_db
-from models import User, OAuthToken
+from app.db.database import get_db
+from app.db.models import User, OAuthToken
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -20,7 +20,7 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "fallback-secret-for-dev")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week
 
-from google_utils import SCOPES
+from app.core.google_utils import SCOPES
 
 @router.get("/login")
 async def login():

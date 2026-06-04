@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import TaskCard from '../components/TaskCard';
-import ConflictModal from '../components/ConflictModal';
+import TaskCard from '../components/TaskCard/TaskCard';
+import ConflictModal from '../components/ConflictModal/ConflictModal';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 

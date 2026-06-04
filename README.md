@@ -1,205 +1,168 @@
 # Axiom – Automated Academic Hub 🎓
 
-An AI-powered academic task manager that automatically syncs your **Google Classroom** courses and assignments, prioritizes tasks using Gemini LLM, and presents them in a beautiful dashboard.
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/Axiom-Academic-Hub)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Next.js](https://img.shields.io/badge/Frontend-Next.js-000000?logo=next.js)](https://nextjs.org/)
 
-## ✨ Features
+Axiom is an AI-powered academic orchestration platform designed to streamline student workflows. By integrating directly with Google Workspace (Classroom, Gmail, Calendar) and leveraging the power of Gemini AI, Axiom automatically imports, prioritizes, and schedules academic tasks, allowing students to focus on what matters most: learning.
 
-- 📚 **Google Classroom Sync** — One-click import of all active courses and assignments
-- 🤖 **AI Prioritization** — Gemini LLM estimates effort and calculates priority scores for each task
-- 📧 **Gmail Pipeline** — Extracts course information from enrollment emails
-- 📅 **Calendar Integration** — Study blocks synced to Google Calendar
-- ⚡ **Conflict Detection** — Alerts when study blocks overlap with calendar events
-- 🎨 **Glassmorphism UI** — Beautiful dark-mode dashboard built with Next.js
+---
+
+## ✨ Key Features
+
+- 🔄 **Intelligent Syncing**
+  - **Google Classroom**: Automatic import of courses, assignments, and due dates.
+  - **Gmail Pipeline**: AI-driven extraction of deadline info from enrollment and syllabus emails.
+  - **Google Calendar**: Bi-directional sync of study blocks and academic events.
+
+- 🧠 **AI-Powered Prioritization**
+  - Uses **Gemini AI** for realistic effort estimation (in hours) based on task complexity.
+  - Calculates dynamic **Priority Scores** using urgency, impact, and effort pressure.
+
+- 📅 **Smart Scheduling & Conflict Management**
+  - Automatically identifies gaps in your schedule for dedicated study blocks.
+  - Interactive **Conflict Detection** alerts you when academic tasks overlap with personal events.
+
+- 🎨 **Modern Dashboard**
+  - High-performance, **Glassmorphism-inspired UI** built with Next.js.
+  - Interactive task timers and real-time statistics tracking.
+
+---
+
+## 🏗 Project Architecture
+
+Axiom follows a modular, professional-grade directory structure designed for scalability and maintainability.
+
+```text
+Axiom-Academic-Hub/
+├── backend/
+│   ├── app/                 # FastAPI core application
+│   │   ├── api/             # RESTful API endpoints (auth, tasks, courses)
+│   │   ├── core/            # System-wide logic (auth, AI, utils)
+│   │   ├── db/              # Database models, schemas, and sessions
+│   │   ├── services/        # Business logic & external integrations
+│   │   ├── main.py          # API Entry Point
+│   │   └── worker.py        # Background task processor (Celery)
+│   ├── Dockerfile           # Backend containerization
+│   └── requirements.txt     # Python dependencies
+├── frontend/
+│   ├── src/
+│   │   ├── app/             # Next.js App Router (pages & layouts)
+│   │   └── components/      # Modular UI components (Atomic design)
+│   └── Dockerfile           # Frontend containerization
+├── scripts/                 # Deployment & automation scripts
+└── docker-compose.yml       # Local orchestration
+```
+
+---
 
 ## 🛠 Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js 16, React 19, Vanilla CSS |
-| Backend | FastAPI, Python 3.13 |
-| Database | SQLite (Local), PostgreSQL (Production) |
-| AI | Google Gemini API |
-| Auth | Google OAuth 2.0 + JWT |
-| APIs | Gmail API, Google Classroom API, Google Calendar API |
+| Component | Technology |
+| :--- | :--- |
+| **Frontend** | [Next.js](https://nextjs.org/), [React](https://reactjs.org/), [Vanilla CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) |
+| **Backend** | [FastAPI](https://fastapi.tiangolo.com/), [Python 3.13](https://www.python.org/) |
+| **Database** | [PostgreSQL](https://www.postgresql.org/) (Production) / [SQLite](https://www.sqlite.org/) (Dev) |
+| **ORM** | [SQLAlchemy 2.0](https://www.sqlalchemy.org/) |
+| **AI Engine** | [Google Gemini 2.5 Flash](https://ai.google.dev/) |
+| **Infrastructure** | [Docker](https://www.docker.com/), [Google Cloud Run](https://cloud.google.com/run) |
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Python 3.11+
 - Node.js 18+
-- A Google Cloud project with OAuth 2.0 credentials
-- APIs enabled: Gmail, Google Classroom, Google Calendar, Gemini
+- Google Cloud Project with OAuth 2.0 Credentials
+- Gemini API Key
 
-### Backend Setup
+### Local Development Setup
 
-```bash
-cd backend
-python -m venv venv
-venv\Scripts\activate        # Windows
-# source venv/bin/activate   # macOS/Linux
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/Axiom-Academic-Hub.git
+   cd Axiom-Academic-Hub
+   ```
 
-pip install fastapi uvicorn sqlalchemy aiosqlite python-dotenv \
-    google-auth google-auth-oauthlib google-api-python-client \
-    google-generativeai python-jose requests
+2. **Backend Configuration**
+   ```bash
+   cd backend
+   python -m venv venv
+   source venv/bin/activate  # Or venv\Scripts\activate on Windows
+   pip install -r requirements.txt
+   cp .env.example .env      # Fill in your secrets
+   python -m app.db.init_db  # Initialize database
+   uvicorn app.main:app --reload
+   ```
 
-# Copy and fill in your credentials
-cp .env.example .env
+3. **Frontend Configuration**
+   ```bash
+   cd ../frontend
+   npm install
+   npm run dev
+   ```
 
-# Initialize the database
-python init_db.py
-
-# Start the server
-uvicorn main:app --reload --port 8000
-```
-
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## 🐳 Running with Docker
-
-The easiest way to run both the frontend and backend is using Docker Compose.
-
-### 1. Configure Environment
-Ensure you have your `.env` file in the `backend/` directory with all the required keys (see [Environment Variables](#-environment-variables)).
-
-### 2. Launch with Docker Compose
-From the root directory, run:
+### 🐳 Docker Deployment
+For a consistent environment across all layers:
 ```bash
 docker-compose up --build
 ```
 
-- **Frontend:** [http://localhost:3000](http://localhost:3000)
-- **Backend API:** [http://localhost:8000](http://localhost:8000)
-- **Interactive Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+---
 
-*Note: On the first run, the system will attempt to initiate the Google OAuth flow. Check the terminal logs if a browser window does not automatically open.*
+## ☁️ Cloud Deployment (GCP)
 
-### Google OAuth Setup
+Axiom is optimized for **Google Cloud Run**. Use the automated scripts for zero-touch provisioning:
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create OAuth 2.0 credentials:
-   - Select **Web application** as the application type.
-   - Add `http://localhost:8000/auth/callback` to the **Authorized redirect URIs**.
-   - Note your **Client ID** and **Client Secret**.
-3. Configure your `backend/.env` file:
-   - Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` with the values from step 2.
-4. Enable the following APIs:
-   - Gmail API
-   - Google Classroom API
-   - Google Calendar API
-5. **Important for Public Access:**
-   - Go to the **OAuth consent screen** tab.
-   - Click **PUBLISH APP** to move it from "Testing" to "In Production".
-   - Without this, only the "Test users" you explicitly add will be able to log in.
+1. **Provision Infrastructure**:
+   ```powershell
+   # Automates API activation, DB creation, and Secret Management
+   .\scripts\setup_gcp.ps1
+   ```
 
-*Note: Since the app uses sensitive scopes (Gmail, Calendar), users will see a "This app isn't verified" warning until you complete the Google verification process. You can still proceed by clicking "Advanced" -> "Go to Axiom (unsafe)".*
+2. **Deploy via Cloud Build**:
+   ```bash
+   gcloud builds submit --config cloudbuild.yaml
+   ```
 
-## 📁 Project Structure
-
-```
-Axiom-Academic-Hub/
-├── docker-compose.yml       # Docker orchestration
-├── backend/
-│   ├── Dockerfile           # Backend container config
-│   ├── requirements.txt     # Python dependencies
-│   ├── main.py              # FastAPI app entry point
-│   ├── models.py            # SQLAlchemy ORM models
-│   ├── schemas.py           # Pydantic schemas
-│   ├── database.py          # DB engine & session
-│   ├── classroom.py         # Google Classroom API client
-│   ├── gmail_pipeline.py    # Gmail → LLM → DB pipeline
-│   ├── llm.py               # Gemini AI integration
-│   ├── prioritization.py    # Priority score calculator
-│   ├── calendar_sync.py     # Google Calendar sync
-│   ├── init_db.py           # DB initializer
-│   ├── .env.example         # Environment variable template
-│   └── routers/
-│       ├── auth.py          # Google OAuth endpoints
-│       ├── courses.py       # Course CRUD + Classroom sync
-│       └── tasks.py         # Task CRUD
-└── frontend/
-    ├── Dockerfile           # Frontend container config
-    └── src/
-        ├── app/
-        │   ├── page.js      # Main dashboard
-        │   ├── layout.js    # Root layout
-        │   └── globals.css  # Global styles
-        └── components/
-            ├── TaskCard.js  # Task display card
-            └── ConflictModal.js  # Schedule conflict dialog
-```
-
-## 🔑 Environment Variables
-
-Copy `backend/.env.example` to `backend/.env` and fill in:
-
-```env
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
-GOOGLE_REDIRECT_URI=http://localhost:8000/auth/callback
-DATABASE_URL=sqlite+aiosqlite:///./academic_hub.db
-JWT_SECRET_KEY=...
-GEMINI_API_KEY=...
-```
-
-## ☁️ Google Cloud Deployment
-
-This project is fully optimized for **Google Cloud Run** with a seamless CI/CD pipeline.
-
-### 1. Initial Setup
-Run the provided provisioning script to set up all GCP resources (APIs, Database, Registry, and Secrets):
-
-```powershell
-# Windows
-powershell.exe -ExecutionPolicy Bypass -File setup_gcp.ps1
-```
-
-### 2. Configure Secrets
-Populate your sensitive keys in **Secret Manager**:
-- `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET` (from Cloud Console)
-- `GEMINI_API_KEY` (from Google AI Studio)
-- `DATABASE_URL`: `postgresql+asyncpg://postgres:postgres@/academic_hub?host=/cloudsql/[PROJECT_ID]:[REGION]:axiom-db`
-
-### 3. Deploy to Live
-Trigger the automated build and deployment process:
-
-```bash
-gcloud builds submit --config cloudbuild.yaml
-```
-
-### 4. Post-Deployment (Final Step)
-After deployment, update your **Google OAuth Credentials** with the production URLs:
-- **Authorized Redirect URI:** `https://backend-163187619200.us-central1.run.app/auth/callback`
-- **Authorized JavaScript Origin:** `https://axiom-163187619200.us-central1.run.app`
-
-### 5. Manage Scaling & Performance
-We've added scripts to easily toggle the application between **Live All The Time** (Always-on) and **Live When People** (On-demand) modes.
-
-**To switch to "Live When People" mode (Default):**
-- Scales to zero when no traffic (saves money).
-- Throttles CPU when idle.
-- **Fast Wake Up**: Kept `startup-cpu-boost` active so the app starts quickly when the first person visits.
-```powershell
-.\manage_scaling.ps1 -Mode "ECO"
-```
-
-**To switch to "Live All The Time" mode:**
-- Ensures 1+ instance is always running (no cold starts).
-- Enables **Always-on CPU** (no throttling).
-- Upgrades to **1Gi Memory** and **Gen2 Execution Environment**.
-```powershell
-.\manage_scaling.ps1 -Mode "LIVE"
-```
+3. **Scale Management**:
+   ```powershell
+   # Toggle between ECO (Scale-to-zero) and LIVE (Always-on)
+   .\scripts\manage_scaling.ps1 -Mode "LIVE"
+   ```
 
 ---
 
-## 🔗 Live URLs
-- **Frontend Dashboard:** [https://axiom-163187619200.us-central1.run.app](https://axiom-163187619200.us-central1.run.app)
-- **Backend API:** [https://backend-163187619200.us-central1.run.app](https://backend-163187619200.us-central1.run.app)
+## 🔑 Environment Variables
+
+Essential variables required in your `backend/app/.env` (or Secret Manager):
+
+| Key | Description |
+| :--- | :--- |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `GOOGLE_CLIENT_ID` | OAuth 2.0 Client ID |
+| `GOOGLE_CLIENT_SECRET` | OAuth 2.0 Client Secret |
+| `GEMINI_API_KEY` | API Key for Gemini AI |
+| `JWT_SECRET_KEY` | Secret for signing auth tokens |
+
+---
+
+## 🛡 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+Developed with ⚡ by [Souvik](https://github.com/yourusername)

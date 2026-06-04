@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 import base64
 import json
-from models import User
-from database import get_db
+from app.db.models import User
+from app.db.database import get_db
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 

@@ -3,9 +3,9 @@ from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
 
-from models import TaskType, TaskStatus, ConflictStatus
+from app.db.models import TaskType, TaskStatus, ConflictStatus
 
-class CourseBase(BaseModel):
+class TaskBase(BaseModel):
     name: str
     description: Optional[str] = None
     section: Optional[str] = None

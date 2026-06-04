@@ -12,7 +12,7 @@ from googleapiclient.errors import HttpError
 # Load environment variables from .env
 load_dotenv()
 
-from google_utils import build_credentials, SCOPES
+from app.core.google_utils import build_credentials, SCOPES
 
 def fetch_course_emails(creds: Credentials, max_results: int = 10) -> list:
     """

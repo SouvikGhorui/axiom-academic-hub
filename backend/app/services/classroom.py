@@ -4,7 +4,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from google_utils import build_credentials
+from app.core.google_utils import build_credentials
 
 def _sync_fetch_courses(creds: Credentials) -> list:
     """Synchronous: fetch all active courses for the authenticated student."""

@@ -4,11 +4,11 @@ from sqlalchemy.future import select
 from typing import List
 from uuid import UUID
 
-from database import get_db
-from models import Course, User, OAuthToken
-from schemas import CourseCreate, CourseResponse
-import classroom as classroom_api
-from dependencies import get_current_user
+from app.db.database import get_db
+from app.db.models import Course, User, OAuthToken
+from app.db.schemas import CourseCreate, CourseResponse
+from app.services import classroom as classroom_api
+from app.core.dependencies import get_current_user
 
 router = APIRouter(prefix="/courses", tags=["courses"])
 
